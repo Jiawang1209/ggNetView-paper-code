@@ -13,7 +13,6 @@
 # this file ~126 MB (GitHub rejects files over 100 MB). Knit the .Rmd locally to
 # regenerate it. If you re-knit with a lower figure resolution and want to track
 # it, delete the line below.
-ggNetView_Network_Analysis.html
 
 # Earlier snapshot of the script (Figures 3-4 only). Its Input/ folder duplicates
 # the data already tracked in Input/; the root script is the current version.

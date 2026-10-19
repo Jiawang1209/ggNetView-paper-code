@@ -19,18 +19,18 @@ This repository accompanies the manuscript submitted to *Methods in Ecology and 
 ```text
 ggNetView-paper-code/
 ├── ggNetView_Network_Analysis.Rmd    # main script: all analyses and figures
-├── ggNetView_Network_Analysis.html   # rendered report (includes sessionInfo())
 ├── R.Rproj                           # RStudio project; open it to set the working directory
+├── CITATION.cff                      # citation metadata
+├── LICENSE                           # MIT
 ├── Input/                            # input data for Figures 5 and 6
 ├── figure2/                          # 5 PDFs (layout gallery, panels a–e)
 ├── figure3/                          # Figure3a.pdf – Figure3c.pdf
 ├── figure4/                          # Figure4a.pdf – Figure4b.pdf
 ├── figure5/                          # Figure5a.pdf – Figure5f.pdf
-├── figure6/                          # Figure6a.pdf – Figure6b.pdf
-└── code_and_file/                    # earlier snapshot of the script (Figures 3–4 only)
+└── figure6/                          # Figure6a.pdf – Figure6b.pdf
 ```
 
-The whole analysis lives in a single R Markdown document, `ggNetView_Network_Analysis.Rmd`. Each figure is produced by one code chunk, and every chunk writes its PDF into the corresponding `figure*` folder. `code_and_file/` is retained only for provenance — use the script at the repository root.
+The whole analysis lives in a single R Markdown document, `ggNetView_Network_Analysis.Rmd`. Each figure is produced by one code chunk, and every chunk writes its PDF into the corresponding `figure*` folder. Knitting the script also regenerates a self-contained HTML report (`ggNetView_Network_Analysis.html`); the report is not tracked in git because the embedded 600-dpi figures make it about 126 MB.
 
 ## Figures and outputs
 
@@ -136,7 +136,7 @@ Seeds are fixed wherever the functions expose them (`seed = 1115`, or `seed = 1`
 | future / future.apply | 1.70.0 / 1.20.2 | Parallel topology computation |
 | knitr / rmarkdown / prettydoc | 1.51 / 2.31 / 0.4.1 | Report rendering |
 
-The complete `sessionInfo()` recorded when the figures were generated is printed at the end of the script and stored at the end of `ggNetView_Network_Analysis.html`.
+The complete `sessionInfo()` recorded when the figures were generated is printed at the end of the script and at the end of the knitted report.
 
 <details>
 <summary><b>Full session information</b></summary>
@@ -209,6 +209,7 @@ loaded via a namespace (and not attached):
 - Run everything from the repository root; `Input/` and `figure*/` are referenced with relative paths.
 - The setup chunk creates lower-case folders (`figure2`–`figure6`) while `ggsave()` writes to `Figure2/`–`Figure6/`. This is fine on the default case-insensitive macOS file system; on Linux, create the capitalised folders as well.
 - The file name `Figuere5e-f_nodes.csv` is spelled as referenced in the script.
+- The rendered HTML report is excluded from version control (see `.gitignore`) because the embedded figures make it about 126 MB; knit the `.Rmd` to regenerate it locally.
 
 ## Contact
 

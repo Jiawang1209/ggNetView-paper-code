@@ -56,7 +56,7 @@ sapply(paste0("figure", c(2:6)), dir.create)
 ```
 ## Figure2
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 # ---- Built-in example datasets ----
 
 # Relative abundance table of rarefied ASVs/OTUs (rows = ASVs, cols = samples).
@@ -203,7 +203,7 @@ ggsave(filename = "Figure2/consensus_module.pdf",
 ### Figure3a
 
 
-```{r fig.width=15, fig.height=7.5, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+```{r fig.width=15, fig.height=7.5, dpi = 96, fig.align="center", warning=FALSE, message=FALSE}
 
 out1 <- ggNetView_multi_link(
   mat              = otu_rare_relative, # variables x samples abundance matrix
@@ -245,7 +245,7 @@ ggsave(filename = "./Figure3/Figure3a.pdf",
 
 ### Figure3b
 
-```{r fig.width=7.5, fig.height=7.5, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+```{r fig.width=7.5, fig.height=7.5, dpi = 96, fig.align="center", warning=FALSE, message=FALSE}
 out_multi_link <- ggNetView_multi_link(
   mat                 = otu_rare_relative,
   group_info          = otu_sample,
@@ -285,7 +285,7 @@ ggsave(filename = "./Figure3/Figure3b.pdf",
 
 ### Figure3c
 
-```{r fig.width=7.5, fig.height=7.5, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+```{r fig.width=7.5, fig.height=7.5, dpi = 96, fig.align="center", warning=FALSE, message=FALSE}
 ####----Network Environment PC1----####
 res <- ggnetview_modularity_heatmaps(
   graph_obj,                        # network tbl_graph object
@@ -338,7 +338,7 @@ ggsave(filename = "./Figure3/Figure3c.pdf",
 
 #### Figure4a
 
-```{r fig.width=15, fig.height=15, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+```{r fig.width=15, fig.height=15, dpi = 96, fig.align="center", warning=FALSE, message=FALSE}
 
 p4 <- list()
 graph_list <- list()
@@ -420,7 +420,7 @@ ggsave(filename = "./Figure4/Figure4a.pdf",
 
 #### Figure4b
 
-```{r fig.width=15, fig.height=15, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+```{r fig.width=15, fig.height=15, dpi = 96, fig.align="center", warning=FALSE, message=FALSE}
 
 topology_list <- list()
 
@@ -501,7 +501,7 @@ obj
 
 ### Figure5a
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 Figure5a <- ggNetView(
   graph_obj = obj,
   layout = "gephi",
@@ -530,7 +530,7 @@ ggsave(filename = "Figure5/Figure5a.pdf",
 
 ### Figure5b
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 Figure5b <- ggNetView(
   graph_obj = obj,
   layout = "gephi",
@@ -605,7 +605,7 @@ obj <- build_graph_from_wgcna(
 
 ### Figure5c
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 Figure5c <- ggNetView(
   graph_obj = obj,
   layout = "WGCNA", 
@@ -633,7 +633,7 @@ ggsave(filename = "./Figure5/Figure5c.pdf",
 
 ### Figure5d
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 
 Figure5d <- ggNetView(
   graph_obj = obj,
@@ -691,7 +691,7 @@ obj <- build_graph_from_df(
 
 
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 # fill by module
 Figure5e <- ggNetView(
   graph_obj = obj,
@@ -716,7 +716,7 @@ ggsave(filename = "Figure5/Figure5e.pdf",
 
 ### Figure5f
 
-```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=8, fig.height=8, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 Figure5f <- ggNetView(
   graph_obj = obj,
   layout = "gephi",
@@ -758,7 +758,7 @@ data("Spedf")
 
 ### Figure6a
 
-```{r fig.width=13, fig.height=13, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=13, fig.height=13, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 
 out1 <- gglink_heatmaps(
   env = Envdf_4st,
@@ -793,7 +793,7 @@ ggsave(filename = "./Figure6/Figure6a.pdf",
 
 ### Figure6b
 
-```{r fig.width=30, fig.height=12.5, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+```{r fig.width=30, fig.height=12.5, dpi = 96, fig.align="center", message=FALSE, warning=FALSE}
 
 out <- gglink_heatmap_triple(
   Environment = "./Input/Figure6b_Environment.csv",

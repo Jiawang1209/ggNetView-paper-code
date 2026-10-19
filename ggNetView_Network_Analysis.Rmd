@@ -1,0 +1,830 @@
+---
+title: "ggNetView Network Analysis"
+author: "Yue Liu"
+date: "2026-09-07"
+output:
+  prettydoc::html_pretty:
+    theme: hpstr
+    highlight: github
+    toc: yes
+    toc_depth: 3
+---
+
+# install R Package
+
+```
+# Step1: install CRAN dependencies
+
+cran_pkgs <- c(
+  "boot", "dplyr", "FNN", "future", "future.apply",
+  "ggforce", "ggnewscale", "ggplot2", "ggraph", "ggrepel",
+  "Hmisc", "huge", "igraph", "magrittr", "MASS",
+  "Matrix", "patchwork", "progressr", "psych", "purrr",
+  "qgraph", "Rcpp", "RcppArmadillo", "readr", "rlang",
+  "scales", "scatterpie", "stringr", "tibble", "tidygraph",
+  "tidyr", "vegan", "VGAM", "WGCNA"
+)
+
+new_pkgs <- cran_pkgs[!cran_pkgs %in% installed.packages()[, "Package"]]
+if (length(new_pkgs)) install.packages(new_pkgs)
+
+
+# Step2: (optional) install suggested packages
+install.packages(c("dynamicTreeCut", "influential",
+                   "knitr", "rmarkdown",
+                   "RobustRankAggreg", "testthat"))
+                   
+# Step3: install ggNetView from GitHub
+devtools::install_github("Jiawang1209/ggNetView")
+```
+
+
+# load R Package
+
+
+```{r warning=F, message=T}
+rm(list = ls())
+library(tidyverse)
+library(ggNetView)
+library(ggnewscale)
+library(patchwork)
+```
+
+```{r}
+# create directory
+sapply(paste0("figure", c(2:6)), dir.create)
+```
+## Figure2
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+# ---- Built-in example datasets ----
+
+# Relative abundance table of rarefied ASVs/OTUs (rows = ASVs, cols = samples).
+data("otu_rare_relative")
+dim(otu_rare_relative)
+
+# ---- Build a co-occurrence network used by every layout demo below ----
+graph_obj <- build_graph_from_mat(
+  mat              = otu_rare_relative,  # variables x samples numeric matrix
+  transfrom.method = "none",             # already relative abundance, no extra transform
+  r.threshold      = 0.7,                # |r| cutoff for keeping an edge
+  p.threshold      = 0.05,               # adjusted p-value cutoff
+  method           = "WGCNA",            # correlation backend: WGCNA::corAndPvalue
+  cor.method       = "pearson",          # Pearson correlation
+  proc             = "BH",               # multiple-testing correction (Benjamini-Hochberg)
+  module.method    = "Fast_greedy",      # community detection algorithm
+  node_annotation  = tax_tab,            # taxonomy joined onto nodes by name
+  top_modules      = 15,                 # keep top-15 modules; rest -> "Others"
+  seed             = 1115                # fix RNG for reproducibility
+)
+
+graph_obj
+
+graph_sub <- get_subgraph(graph_obj = graph_obj,
+                          select_module = c("1", "7")
+)
+
+p2_1 <- ggNetView(
+  graph_obj = graph_sub$sub_graph_select,
+  layout = "bipartite_gephi_layout",
+  layout.module = "order",
+  node_add = 12,
+  anchor_dist = 8,
+  pointsize = c(1, 5),
+  center = F,
+  scale = F
+)
+
+p2_1
+
+ggsave(filename = "Figure2/bipartite_network.pdf",
+       plot = p2_1,
+       height = 6,
+       width = 10)
+
+graph_sub <- get_subgraph(graph_obj = graph_obj,
+                          select_module = c("1", "7", "6")
+)
+
+p2_2 <- ggNetView(
+  graph_obj = graph_sub$sub_graph_select,
+  layout = "tripartite_equal_gephi_layout",
+  layout.module = "order",
+  node_add = 20,
+  r = 10,
+  pointsize = c(1, 5),
+  mapping_line = F,
+  anchor_dist = 100,
+  center = F,
+  scale = F
+)
+
+p2_2
+
+ggsave(filename = "Figure2/tripartite_network.pdf",
+       plot = p2_2,
+       height = 6,
+       width =10)
+
+graph_sub <- get_subgraph(graph_obj = graph_obj,
+                          select_module = c("1", "7", "6", "9")
+)
+
+p2_3 <- ggNetView(
+  graph_obj = graph_sub$sub_graph_select,
+  layout = "quadripartite_equal_gephi_layout",
+  layout.module = "order",
+  node_add = 15,
+  anchor_dist = 8,
+  r = 1,
+  pointsize = c(1, 5),
+  mapping_line = F,
+  center = F,
+  scale = F
+)
+
+p2_3
+
+
+ggsave(filename = "Figure2/quadripartite_network.pdf",
+       plot = p2_3,
+       height = 6,
+       width =10)
+
+graph_sub <- get_subgraph(graph_obj = graph_obj,
+                          select_module = c("1", "7", "6", "9", "4")
+)
+
+p2_4 <- ggNetView(
+  graph_obj = graph_sub$sub_graph_select,
+  layout = "pentapartite_equal_gephi_layout",
+  layout.module = "order",
+  node_add = 14,
+  anchor_dist = 15,
+  r = 1,
+  pointsize = c(1, 5),
+  mapping_line = F,
+  center = F,
+  scale = F
+)
+
+p2_4
+
+ggsave(filename = "Figure2/circular_network.pdf",
+       plot = p2_4,
+       height = 6,
+       width =10)
+
+
+p2_5 <- ggNetView(
+  graph_obj = graph_obj,
+  layout = "consensus_module_equal_gephi",
+  center = F,
+  r = 2,
+  node_add = 7,
+  anchor_dist = 50,
+  pointsize = c(1,3),
+  layout.module = "order"
+)
+
+p2_5
+
+
+ggsave(filename = "Figure2/consensus_module.pdf",
+       plot = p2_5,
+       height = 10,
+       width =10)
+```
+
+
+
+## Figure3
+
+### Figure3a
+
+
+```{r fig.width=15, fig.height=7.5, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+
+out1 <- ggNetView_multi_link(
+  mat              = otu_rare_relative, # variables x samples abundance matrix
+  group_info       = otu_sample,        # sample metadata; defines how samples are split into groups
+  transfrom.method = "none",            # pre-correlation transform on `mat`; "none" = keep as-is
+  r.threshold      = 0.7,               # |r| cutoff for keeping an edge
+  p.threshold      = 0.05,              # adjusted p-value cutoff
+  method           = "WGCNA",           # correlation backend: WGCNA::corAndPvalue
+  cor.method       = "pearson",         # Pearson correlation
+  proc             = "BH",              # multiple-testing correction (Benjamini-Hochberg)
+  module.method    = "Fast_greedy",     # community detection per sub-network
+  layout_module    = "adjacent",        # neighbouring modules placed close together
+  center           = T,                 # pull a node toward the centre of each sub-layout
+  top_modules      = 15,                # keep top-15 modules per sub-network; rest -> "Others"
+  layout           = "gephi",           # global node-positioning algorithm per sub-network
+  shrink           = 0.5,               # shrink each sub-network inward (smaller = more compact)
+  scale            = F,                 # do NOT normalise each group to a common scale -> sub-networks keep their native size differences
+  node_jitter      = T,                 # jitter node positions slightly to reduce overlap
+  node_jitter_sd   = 0.3,               # SD of the jitter (bigger -> more spread)
+  anchor_dist      = 30,                 # distance between groups on the outer anchor circle
+  seed             = 1115,              # fix RNG for reproducibility
+  orientation      = "up",              # frame orientation; one of "up"/"down"/"left"/"right"
+  angle            = 0                  # additional rotation angle (degrees)
+)
+#> Scale for size is already present.
+#> Adding another scale for size, which will replace the existing scale.
+#> Scale for size is already present.
+#> Adding another scale for size, which will replace the existing scale.
+
+Figure3a <- out1[["p"]]   # the assembled ggplot object
+
+Figure3a
+
+ggsave(filename = "./Figure3/Figure3a.pdf",
+       plot = Figure3a,
+       height = 10,
+       width = 10)
+```
+
+### Figure3b
+
+```{r fig.width=7.5, fig.height=7.5, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+out_multi_link <- ggNetView_multi_link(
+  mat                 = otu_rare_relative,
+  group_info          = otu_sample,
+  transfrom.method    = "none",
+  r.threshold         = 0.7,
+  p.threshold         = 0.05,
+  method              = "WGCNA",
+  cor.method          = "pearson",
+  proc                = "BH",
+  module.method       = "Fast_greedy",
+  layout              = "circular_modules_equal_gephi_layout", # per-sub-network layout
+  layout.module       = "order",        # modules placed in a fixed order (not random/adjacent)
+  top_modules         = 15,
+  scale_groups        = T,              # normalise each group to a comparable scale
+  add_outer           = "circle",       # outer frame style; "circle" / "manual" / etc.
+  r                   = 5,              # radius of each per-group sub-network
+  jitter              = F,              # don't jitter nodes
+  anchor_dist         = 1,              # distance between groups on the anchor frame
+  layout_anchor_dist  = 150,            # anchor frame size in the per-sub-network layout
+  seed                = 1115,
+  dropOthers          = T,              # drop the "Others" module before plotting
+  link_level          = "Module"          # connect cross-group items at NODE level
+)
+
+Figure3b <- out_multi_link[["p"]]
+
+Figure3b
+
+ggsave(filename = "./Figure3/Figure3b.pdf",
+       plot = Figure3b,
+       height = 10,
+       width = 10)
+```
+
+
+
+
+### Figure3c
+
+```{r fig.width=7.5, fig.height=7.5, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+####----Network Environment PC1----####
+res <- ggnetview_modularity_heatmaps(
+  graph_obj,                        # network tbl_graph object
+  Envdf_4st_2,                      # environmental factor table
+  otu_rare_relative,                # abundance matrix (used to derive per-module index)
+  env_select = list(Env01 = 1:14,   # env block Env01 = cols 1-14
+                    Env02 = 15:28,   #           Env02 = cols 15-28
+                    Env03 = 29:42,   #           Env03 = cols 29-42
+                    Env04 = 43:56),  #           Env04 = cols 43-56
+  drop_nonsig = T,                  # keep only significant module-env links
+  r = 35,                           # radius of the circular heatmap layout
+  distance = 5,                     # spacing between heatmap blocks
+  HeatmapLabelOrient = 45,          # rotate heatmap labels by 45 degrees
+  shrink = 0.65,                    # shrink the network layout inward
+  module_index = "eigengene",  # 或 "abundance"   # per-module summary: eigengene (PC1)
+  relation_method = "correlation",  # 或 "mantel",  # module-env association method
+  HeatmapColorBar = list(           # custom low->high colour ramp per env block
+    c("#2166ac", "#b2182b"),
+    c("#1b7837", "#762a83"),
+    c("#4393c3", "#d6604d"),
+    c("#92c5de", "#f4a582")
+  ),
+  layout = "gephi",                 # node-positioning algorithm
+  layout_module = "adjacent",       # place neighbouring modules close together
+  node_jitter    = T,                       # jitter node positions to reduce overlap
+  module_outline = T,                    # draw an outer hull/line around each module
+  HeatmapScale = 1.5,               # scale factor for heatmap point/tile size
+  network_outline = T,              # draw an outer boundary around node groups
+  module_label = F,                        # do not show node labels
+  # module_label_size = 5
+)
+#> Coordinate system already present.
+#> ℹ Adding new coordinate system, which will replace the existing one.
+
+Figure3c <- res[[1]]
+
+Figure3c
+
+ggsave(filename = "./Figure3/Figure3c.pdf",
+       plot = Figure3c,
+       height = 15.5,
+       width = 15.5)
+```
+
+
+
+---
+
+## Figure4
+
+#### Figure4a
+
+```{r fig.width=15, fig.height=15, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+
+p4 <- list()
+graph_list <- list()
+matrix_list <- list()
+
+# KO # OE # WT
+
+for (group in c("KO", "WT", "OE")) {
+  # create graph object
+  graph_obj <- build_graph_from_mat(
+    mat = otu_rare_relative %>% dplyr::select(contains(group)),       # variables x samples abundance matrix
+    transfrom.method = "none",     # pre-correlation transform; "none" = keep as-is
+    node_annotation = tax_tab,     # taxonomy joined onto each node by name
+    p.threshold = 0.05,            # adjusted p-value cutoff
+    r.threshold = 0.7,             # |r| cutoff for keeping an edge
+    method = "WGCNA",              # correlation backend: WGCNA::corAndPvalue
+    proc = "BH",                   # multiple-testing correction (Benjamini-Hochberg)
+    module.method = "Fast_greedy", # community detection algorithm
+    top_modules = 15,              # keep top-15 modules; rest -> "Others"
+    seed = 1115                    # fix RNG for reproducibility
+  )
+  
+  graph_list[[group]] <- graph_obj
+  matrix_list[[group]] <- otu_rare_relative %>% dplyr::select(contains(group))
+  
+  # Extract the two inputs Zi-Pi needs from graph object
+  nodes_bulk <- get_graph_nodes(graph_obj)      # node table (module + degree cols)
+  adj_mat    <- get_graph_adjacency(graph_obj)  # adjacency / correlation matrix
+    
+  role_palette <- c(
+    "Peripherals"  = "#377eb8",
+    "Connectors"   = "#4daf4a",
+    "Module hubs"  = "#e41a1c",
+    "Network hubs" = "#ff7f00"
+  )
+
+# Compute Zi-Pi and classify
+  zp <- ggnetview_zipi(
+    nodes_bulk     = nodes_bulk,    # node table: IDs in rownames or a `name` col
+    z_bulk_mat     = adj_mat,       # adjacency matrix; non-zero entries = edges
+    modularity_col = "Modularity",  # column holding module labels (no NAs)
+    degree_col     = "Degree",      # column holding node degree   (no NAs)
+    zi_threshold   = 2.5,           # Zi cutoff for role classification
+    pi_threshold   = 0.62,          # Pi cutoff for role classification
+    na.rm          = FALSE,         # FALSE = keep unclassifiable nodes (type = NA)
+    point_colors   = role_palette,  # point + legend colours, keyed by role
+    bg_colors      = c(             # quadrant background fills, keyed by role
+      "Peripherals"  = "#f0f0f0",
+      "Connectors"   = "#d9f0d3",
+      "Module hubs"  = "#fde0dd",
+      "Network hubs" = "#fee8c8"
+    ),
+    label_colors   = role_palette,  # quadrant text-label colours (default: black)
+    label_size     = 5,             # quadrant text-label size  (default 5.5)
+    bg_alpha       = 0.35           # background opacity 0..1    (default 0.25)
+  )
+  
+  class(zp)
+  
+  names(zp)
+  
+  p4[[group]] <- zp$plot
+  
+}
+
+
+# arrange 
+Figure4a <- patchwork::wrap_plots(p4, nrow = 1, guides = "collect") 
+
+Figure4a
+
+
+ggsave(filename = "./Figure4/Figure4a.pdf",
+       plot = Figure4a,
+       height = 10,
+       width = 15.5)
+```
+
+
+#### Figure4b
+
+```{r fig.width=15, fig.height=15, dpi = 600, fig.align="center", warning=FALSE, message=FALSE}
+
+topology_list <- list()
+
+for (group in c("KO", "WT", "OE")) {
+  print(group)
+  topology_parallel_with_mat <- get_network_topology_parallel(
+    graph_obj        = graph_list[[group]],
+    mat              = matrix_list[[group]], # abundance matrix -> enables cohesion + robustness
+    transfrom.method = "none",            # pre-correlation transform on `mat`
+    method           = "WGCNA",           # correlation backend used to rebuild network.raw from `mat`
+    cor.method       = "pearson",         # Pearson correlation
+    proc             = "BH",              # multiple-testing correction
+    bootstrap        = 2,               # bootstrap iterations for robustness + # of random ER reference nets
+    parallel         = TRUE,              # enable parallel backend
+    n_workers        = 2                  # # of parallel workers
+  )
+  topology_list[[group]] <- topology_parallel_with_mat$topology
+}
+
+# plot
+Figure4b <- do.call(cbind, topology_list) %>%
+  dplyr::select(1, contains("Target")) %>%
+  dplyr::rename(Topology = KO.Topology) %>%
+  tidyr::pivot_longer(cols = -Topology, names_to = "Kind", values_to = "Value") %>%
+  dplyr::mutate(Kind = str_remove(Kind, pattern = ".Target_network")) %>%
+  ggplot() + 
+  geom_bar(aes(x = Kind, y = Value, fill = Kind), stat = "identity", width = 0.75) + 
+  scale_y_continuous(expand = expansion(mult = c(0,0.1))) + 
+  facet_wrap(~Topology, scale = "free") + 
+  theme_bw() + 
+  theme(
+    strip.text = element_text(size = 15),
+    axis.text = element_text(size = 12.5, color = "#000000")
+  )
+
+Figure4b
+
+
+ggsave(filename = "./Figure4/Figure4b.pdf",
+       plot = Figure4b,
+       height = 12.5,
+       width = 15.5)
+
+```
+
+
+
+---
+
+
+## Figure5
+
+> The data from `Keystone taxa mediate the trade-off between microbial` </br> `community stability and performance in activated sludges`
+
+```{r  message=FALSE, warning=FALSE}
+# load data
+
+# OTU table
+otu <- read_delim(file = "./Input/Figure5a-b_ASV_data_0.00001_0.01.csv", delim = ",", col_names = T) %>%
+  tibble::column_to_rownames(var = "...1")
+
+# OTU tax table
+tax <- read_delim(file = "./Input/Figure5a-b_ASV-MiDAS-MRA-function-taxonomy-all-new.csv", col_names = T, delim = ",")
+
+# create object
+obj <- build_graph_from_mat(
+  mat = otu,
+  transfrom.method = "ln",
+  method = "WGCNA",
+  r.threshold = 0.44,
+  p.threshold = 0.05,
+  node_annotation = tax
+)
+
+obj
+```
+
+
+### Figure5a
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+Figure5a <- ggNetView(
+  graph_obj = obj,
+  layout = "gephi",
+  layout.module = "adjacent",
+  group.by = "Modularity",
+  center = F,
+  jitter = TRUE,
+  jitter_sd = 0.15,
+  shrink = 0.9,
+  linealpha = 0.2,
+  linecolor = "#d9d9d9"
+) + 
+  scale_fill_manual(values = c("#00A9FF", "#0BB702", "#C77CFF", "#00C19A", "#ED68ED", 
+                               "#8494FF", "#00B8E7", "#FF61CC", "#F8766D", "#E68613",
+                               "#ABA300", "#7CAE00", "#CD9600", "#00BE67", "#00BFC4",
+                               "#FF68A1")) + 
+  theme(legend.position = "none")
+
+Figure5a
+
+ggsave(filename = "Figure5/Figure5a.pdf",
+       plot = Figure5a,
+       height = 12,
+       width = 12)
+```
+
+### Figure5b
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+Figure5b <- ggNetView(
+  graph_obj = obj,
+  layout = "gephi",
+  layout.module = "adjacent",
+  group.by = "Phylum",
+  center = F,
+  jitter = TRUE,
+  jitter_sd = 0.15,
+  mapping_line = TRUE,
+  shrink = 0.9,
+  linealpha = 0.2,
+  linecolor = "#d9d9d9"
+) + 
+  scale_fill_manual(values = rep(c("#8dd3c7", 
+                                   "#ffffb3", "#bebada", "#fb8072", "#80b1d3", 
+                                   "#fdb462", "#b3de69", "#fccde5", "#cab2d6", 
+                                   "#bc80bd", "#ccebc5", "#ffed6f", "#a6cee3", 
+                                   "#b2df8a", "#fb9a99", "#bdbdbd", "#a6cee3", 
+                                   "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", 
+                                   "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", 
+                                   "#6a3d9a", "#ffff99", "#b15928"), times = 3)) + 
+  scale_color_manual(values = c("Positive" = "#d6604d",
+                                "Negative" = "#92c5de")) + 
+  scale_size(range = c(1,5)) + 
+  theme(legend.position = "none")
+
+Figure5b
+
+ggsave(filename = "Figure5/Figure5b.pdf",
+       plot = Figure5b,
+       height = 12,
+       width = 12)
+
+```
+
+------
+
+
+
+> The data from `Prospective observational study on biomarkers of ` </br> ` response in pancreatic ductal adenocarcinoma`
+
+```{r}
+# load TOM Matrix
+load(file = "./Input/WGCNA.tom-block.1.RData")
+TOM_mat <- as.matrix(TOM)
+
+# load plot.mat
+plot.mat <- readRDS(file = "Input/plot.mat.Rds")
+
+trans_TOM <- trans_TOM_in_WGCNA(TOM_mat, plot.mat, top_k = 1)
+
+# load net from WGCNA
+net <- readRDS(file = "Input/net.Rds")
+
+# load ID info from WGCNA
+id <- readRDS(file = "Input/id.Rds")
+
+# module
+module <- data.frame(
+  ID = names(net$colors),
+  Module = as.character(net$colors)
+)
+
+
+obj <- build_graph_from_wgcna(
+  wgcna_tom = trans_TOM,
+  module = module,
+  node_annotation = id
+)
+```
+
+
+### Figure5c
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+Figure5c <- ggNetView(
+  graph_obj = obj,
+  layout = "WGCNA", 
+  layout.module = "order",  
+  group.by = "Modularity",
+  fill.by = "Modularity",
+  center = F,
+  shrink = 0.95,
+  jitter = F,
+  jitter_sd = 1.5,
+  pointsize = c(2,2),
+  seed = 1,
+  label = T,
+  labelsize = 6
+) + 
+  theme(legend.position = "none")
+
+Figure5c
+
+ggsave(filename = "./Figure5/Figure5c.pdf",
+       plot = Figure5c,
+       height = 10,
+       width = 10)
+```
+
+### Figure5d
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+
+Figure5d <- ggNetView(
+  graph_obj = obj,
+  layout = "WGCNA", 
+  layout.module = "order",  
+  group.by = "Modularity",
+  fill.by = "Change",
+  center = F,
+  shrink = 0.95,
+  jitter = F,
+  jitter_sd = 1.5,
+  pointsize = c(2,2),
+  seed = 1,
+  label = T,
+  labelsize = 6
+) + 
+  scale_fill_manual(values = c("Up" = "#fc9272",
+                               "Normal" = "#bdbdbd",
+                               "Down" = "#74a9cf")) +
+  theme(legend.position = "none")
+
+Figure5d
+
+ggsave(filename = "./Figure5/Figure5d.pdf",
+       plot = Figure5d,
+       height = 10,
+       width = 10)
+
+```
+
+------
+
+### Figure5e
+
+> The data from `Dynamic changes in the transcriptome landscape of` </br> `Arabidopsis thaliana in response to cold stress`
+
+```{r}
+# load data
+# PPI DF
+df <- read_delim(file = "./Input/Figure5e-f_links.csv", delim = ",", col_names = T) 
+
+# PPI annotation
+node_annotation <- read_delim(file = "./Input/Figuere5e-f_nodes.csv", col_names = T, delim = ",")
+
+# create object
+obj <- build_graph_from_df(
+  df = df,
+  node_annotation = node_annotation,
+  directed = F,
+  module.method = "Fast_greedy",
+  top_modules = 15
+)
+
+```
+
+
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+# fill by module
+Figure5e <- ggNetView(
+  graph_obj = obj,
+  layout = "gephi",
+  center = F,
+  shrink = 0.85,
+  layout.module = "adjacent",
+  pointsize = c(1,6),
+  group.by = "Modularity",
+  seed = 1115
+) + 
+  theme(legend.position = "none")
+
+Figure5e
+
+ggsave(filename = "Figure5/Figure5e.pdf",
+       plot = Figure5e,
+       height = 7,
+       width = 7)
+
+```
+
+### Figure5f
+
+```{r fig.width=8, fig.height=8, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+Figure5f <- ggNetView(
+  graph_obj = obj,
+  layout = "gephi",
+  center = F,
+  shrink = 0.85,
+  layout.module = "adjacent",
+  pointsize = c(1,6),
+  group.by = "Type",
+  node_fill = "Type",
+  seed = 1115
+) + 
+  scale_fill_manual(values = c('#8dd3c7','#ffffb3','#bebada','#bdbdbd','#fb8072',
+                               '#fdb462','#b3de69','#fccde5','#cab2d6','#bc80bd',
+                               '#ccebc5','#ffed6f','#a6cee3','#b2df8a','#fb9a99',
+                               '#bdbdbd','#1f78b4','#33a02c','#e31a1c','#fdbf6f',
+                               '#ff7f00','#6a3d9a','#ffff99','#b15928'))
+
+
+Figure5f
+
+ggsave(filename = "Figure5/Figure5f.pdf",
+       plot = Figure5f,
+       height = 7,
+       width = 7)
+```
+
+------
+
+## Figure6
+
+```{r}
+# load test data in ggNetView
+data("Envdf_4st")
+data("Spedf")
+```
+
+
+
+
+### Figure6a
+
+```{r fig.width=13, fig.height=13, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+
+out1 <- gglink_heatmaps(
+  env = Envdf_4st,
+  spec = Spedf,
+  env_select = list(Env01 = 1:14,
+                    Env02 = 15:28,
+                    Env03 = 29:42,
+                    Env04 = 43:56),
+  spec_select = list(Spec01 = 1:8),
+  HeatmapLabelOrient = 45,
+  HeatmapLabelSize = 3.5,
+  relation_method = "correlation",
+  spec_layout = "circle_outline",
+  cor.method = "pearson",
+  cor.use = "pairwise",
+  distance = 1,
+  CorePointSize = 20,
+  r = 10,
+  orientation = c("top_right", "bottom_right", "top_left", "bottom_left")
+) 
+
+Figure6a <- out1[[1]]
+
+
+Figure6a
+
+ggsave(filename = "./Figure6/Figure6a.pdf",
+       plot = Figure6a,
+       height = 14,
+       width = 14)
+```
+
+### Figure6b
+
+```{r fig.width=30, fig.height=12.5, dpi = 600, fig.align="center", message=FALSE, warning=FALSE}
+
+out <- gglink_heatmap_triple(
+  Environment = "./Input/Figure6b_Environment.csv",
+  Experiment = "./Input/Figure6b_Experiment.csv",
+  edge = "./Input/Figure6b_edge.csv",
+  node = "./Input/Figure6b_node.csv",
+  hub_n = 5,
+  r = 5,
+  cor.method = "pearson"
+)
+
+Figure6b <- out
+
+Figure6b
+
+
+ggsave(filename = "./Figure6/Figure6b.pdf",
+       plot = Figure6b,
+       height = 12.5,
+       width = 32,
+       device = cairo_pdf)
+```
+
+
+---
+
+## sessionInfo
+
+```{r}
+sessionInfo()
+```
+
+
+<h4 align="center">© ggNetView </h4>

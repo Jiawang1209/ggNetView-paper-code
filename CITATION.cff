@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it as below."
+type: software
+title: "ggNetView: An R Package for Reproducible Biological Network Analysis and Visualization"
+abstract: >-
+  Analysis data and code for the manuscript "ggNetView: An R Package for
+  Reproducible Biological Network Analysis and Visualization", containing the
+  R script, input data and figure files needed to reproduce Figures 2-6.
+authors:
+  - family-names: Liu
+    given-names: Yue
+    orcid: "https://orcid.org/0000-0002-6180-8068"
+    affiliation: >-
+      CAS Key Laboratory of Forest Ecology and Silviculture, Institute of
+      Applied Ecology, Chinese Academy of Sciences, Shenyang, Liaoning 110016,
+      China
+  - family-names: Wang
+    given-names: Chao
+    email: cwang@iae.ac.cn
+    affiliation: >-
+      CAS Key Laboratory of Forest Ecology and Silviculture, Institute of
+      Applied Ecology, Chinese Academy of Sciences, Shenyang, Liaoning 110016,
+      China
+version: 1.0.0
+license: MIT
+repository-code: "https://github.com/Jiawang1209/ggNetView-paper-code"
+keywords:
+  - network analysis
+  - network visualization
+  - reproducibility
+  - R package
+  - ecological networks
+  - microbial co-occurrence

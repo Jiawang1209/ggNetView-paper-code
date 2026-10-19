@@ -1,10 +1,12 @@
 # ggNetView-paper-code
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23479498.svg)](https://doi.org/10.5281/zenodo.23479498)
+
 **Analysis data and code for:**
 
 > **ggNetView: An R Package for Reproducible Biological Network Analysis and Visualization**
 
-This repository accompanies the manuscript submitted to *Methods in Ecology and Evolution*. It contains the R script, the input data and the rendered figure files needed to reproduce Figures 2–6 of the paper.
+This repository accompanies the manuscript submitted to *Methods in Ecology and Evolution*. It contains the R script, the input data and the rendered figure files needed to reproduce Figures 2–6 of the paper, and is archived on Zenodo (v1.0.0: [10.5281/zenodo.23479498](https://doi.org/10.5281/zenodo.23479498)).
 
 ## Authors
 
@@ -209,7 +211,16 @@ loaded via a namespace (and not attached):
 - Run everything from the repository root; `Input/` and `figure*/` are referenced with relative paths.
 - The setup chunk creates lower-case folders (`figure2`–`figure6`) while `ggsave()` writes to `Figure2/`–`Figure6/`. This is fine on the default case-insensitive macOS file system; on Linux, create the capitalised folders as well.
 - The file name `Figuere5e-f_nodes.csv` is spelled as referenced in the script.
-- The rendered HTML report is excluded from version control (see `.gitignore`) because the embedded figures make it about 126 MB; knit the `.Rmd` to regenerate it locally.
+- The 14 figure chunks use `dpi = 96` for the inline previews, which keeps the rendered report at about 10 MB; `dpi` affects only the HTML previews, not the PDFs written by `ggsave()`.
+
+## Code and data availability
+
+This repository is archived on Zenodo:
+
+- **Version v1.0.0** (the version described in the manuscript): https://doi.org/10.5281/zenodo.23479498
+- **Concept DOI** (always resolves to the latest version): https://doi.org/10.5281/zenodo.23479497
+
+The analysis scripts, package versions, and session information needed to reproduce the figures are provided in this repository and in the Zenodo archive. Figures 2–6 are reproduced by knitting `ggNetView_Network_Analysis.Rmd`, and the exact `sessionInfo()` is listed above.
 
 ## Contact
 
